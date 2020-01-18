@@ -1,8 +1,8 @@
 name: split_view
-description: A new Flutter package.
+description: A split view for flutter.
 version: 0.0.1
-author:
-homepage:
+author: Toshiaki Hayashi <aki.iworks@gmail.com>
+homepage: https://github.com/toshiaki-h/split_view
 
 environment:
   sdk: ">=2.1.0 <3.0.0"

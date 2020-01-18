@@ -1,8 +1,14 @@
 # split_view
 
-A new Flutter package.
+A splitter view for flutter.
 
 ## Getting Started
+
+
+## Usage
+
+
+
 
 This project is a starting point for a Dart
 [package](https://flutter.dev/developing-packages/),
