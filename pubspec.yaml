@@ -1,7 +1,6 @@
 name: split_view
 description: A split view for flutter.
 version: 0.0.1
-author: Toshiaki Hayashi <aki.iworks@gmail.com>
 homepage: https://github.com/toshiaki-h/split_view
 
 environment:
