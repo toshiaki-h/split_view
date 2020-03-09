@@ -45,6 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Center(child: Text("View2")),
             color: Colors.blue,
           ),
+          onWeightChanged: (w) => print("Horizon: $w"),
         ),
         view2: Container(
           child: Center(
@@ -53,6 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
           color: Colors.green,
         ),
         viewMode: SplitViewMode.Vertical,
+        onWeightChanged: (w) => print("Vertical $w"),
       ),
     );
   }

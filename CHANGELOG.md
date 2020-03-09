@@ -1,3 +1,7 @@
+## 1.0.1
+
+* Add weight change event
+
 ## 1.0.0
 
 * Change version number

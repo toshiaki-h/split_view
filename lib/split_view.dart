@@ -12,6 +12,7 @@ class SplitView extends StatefulWidget {
   final double initialWeight;
   final Color gripColor;
   final double positionLimit;
+  final ValueChanged<double> onWeightChanged;
 
   SplitView({
     @required this.view1,
@@ -21,6 +22,7 @@ class SplitView extends StatefulWidget {
     this.initialWeight = 0.5,
     this.gripColor = Colors.grey,
     this.positionLimit = 20.0,
+    this.onWeightChanged,
   });
 
   @override
@@ -30,6 +32,7 @@ class SplitView extends StatefulWidget {
 class _SplitViewState extends State<SplitView> {
   double defaultWeight;
   ValueNotifier<double> weight;
+  double _prevWeight;
 
   @override
   void initState() {
@@ -40,12 +43,17 @@ class _SplitViewState extends State<SplitView> {
   @override
   Widget build(BuildContext context) {
     weight = ValueNotifier(defaultWeight);
+    _prevWeight = defaultWeight;
 
     return LayoutBuilder(
       builder: (context, constraints) {
         return ValueListenableBuilder<double>(
           valueListenable: weight,
           builder: (_, w, __) {
+            if (widget.onWeightChanged != null && _prevWeight != w) {
+              _prevWeight = w;
+              widget.onWeightChanged(w);
+            }
             if (widget.viewMode == SplitViewMode.Vertical) {
               return _buildVerticalView(context, constraints, w);
             } else {
@@ -57,8 +65,7 @@ class _SplitViewState extends State<SplitView> {
     );
   }
 
-  Stack _buildVerticalView(
-      BuildContext context, BoxConstraints constraints, double w) {
+  Stack _buildVerticalView(BuildContext context, BoxConstraints constraints, double w) {
     double top = constraints.maxHeight * w;
     double bottom = constraints.maxHeight * (1.0 - w);
 
@@ -86,8 +93,7 @@ class _SplitViewState extends State<SplitView> {
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
             onVerticalDragUpdate: (detail) {
-              final RenderBox container =
-                  context.findRenderObject() as RenderBox;
+              final RenderBox container = context.findRenderObject() as RenderBox;
               final pos = container.globalToLocal(detail.globalPosition);
               if (pos.dy > widget.positionLimit &&
                   pos.dy < (container.size.height - widget.positionLimit)) {
@@ -101,8 +107,7 @@ class _SplitViewState extends State<SplitView> {
     );
   }
 
-  Widget _buildHorizontalView(
-      BuildContext context, BoxConstraints constraints, double w) {
+  Widget _buildHorizontalView(BuildContext context, BoxConstraints constraints, double w) {
     final double left = constraints.maxWidth * w;
     final double right = constraints.maxWidth * (1.0 - w);
 
@@ -130,8 +135,7 @@ class _SplitViewState extends State<SplitView> {
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
             onVerticalDragUpdate: (detail) {
-              final RenderBox container =
-                  context.findRenderObject() as RenderBox;
+              final RenderBox container = context.findRenderObject() as RenderBox;
               final pos = container.globalToLocal(detail.globalPosition);
               if (pos.dx > widget.positionLimit &&
                   pos.dx < (container.size.width - widget.positionLimit)) {
