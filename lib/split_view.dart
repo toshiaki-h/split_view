@@ -1,6 +1,7 @@
 library split_view;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 /// SplitView
@@ -90,17 +91,21 @@ class _SplitViewState extends State<SplitView> {
           left: 0,
           right: 0,
           bottom: bottom - widget.gripSize / 2.0,
-          child: GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onVerticalDragUpdate: (detail) {
-              final RenderBox container = context.findRenderObject() as RenderBox;
-              final pos = container.globalToLocal(detail.globalPosition);
-              if (pos.dy > widget.positionLimit &&
-                  pos.dy < (container.size.height - widget.positionLimit)) {
-                weight.value = pos.dy / container.size.height;
-              }
-            },
-            child: Container(color: widget.gripColor),
+          child: MouseRegion(
+            cursor: SystemMouseCursors.resizeRow,
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onVerticalDragUpdate: (detail) {
+                final RenderBox container =
+                    context.findRenderObject() as RenderBox;
+                final pos = container.globalToLocal(detail.globalPosition);
+                if (pos.dy > widget.positionLimit &&
+                    pos.dy < (container.size.height - widget.positionLimit)) {
+                  weight.value = pos.dy / container.size.height;
+                }
+              },
+              child: Container(color: widget.gripColor),
+            ),
           ),
         ),
       ],
@@ -132,17 +137,21 @@ class _SplitViewState extends State<SplitView> {
           left: left - widget.gripSize / 2.0,
           right: right - widget.gripSize / 2.0,
           bottom: 0,
-          child: GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onVerticalDragUpdate: (detail) {
-              final RenderBox container = context.findRenderObject() as RenderBox;
-              final pos = container.globalToLocal(detail.globalPosition);
-              if (pos.dx > widget.positionLimit &&
-                  pos.dx < (container.size.width - widget.positionLimit)) {
-                weight.value = pos.dx / container.size.width;
-              }
-            },
-            child: Container(color: widget.gripColor),
+          child: MouseRegion(
+            cursor: SystemMouseCursors.resizeColumn,
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onVerticalDragUpdate: (detail) {
+                final RenderBox container =
+                    context.findRenderObject() as RenderBox;
+                final pos = container.globalToLocal(detail.globalPosition);
+                if (pos.dx > widget.positionLimit &&
+                    pos.dx < (container.size.width - widget.positionLimit)) {
+                  weight.value = pos.dx / container.size.width;
+                }
+              },
+              child: Container(color: widget.gripColor),
+            ),
           ),
         ),
       ],
