@@ -1,3 +1,7 @@
+## 1.0.2
+
+* Set mouse cursor for Desktop & Web (jpnurmi)
+
 ## 1.0.1
 
 * Add weight change event
