@@ -67,8 +67,8 @@ class _SplitViewState extends State<SplitView> {
   }
 
   Stack _buildVerticalView(BuildContext context, BoxConstraints constraints, double w) {
-    double top = constraints.maxHeight * w;
-    double bottom = constraints.maxHeight * (1.0 - w);
+    double top = constraints.maxHeight * w - (widget.gripSize / 2.0);
+    double bottom = constraints.maxHeight * (1.0 - w) + (widget.gripSize / 2.0);
 
     return Stack(
       children: <Widget>[
@@ -96,8 +96,7 @@ class _SplitViewState extends State<SplitView> {
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
               onVerticalDragUpdate: (detail) {
-                final RenderBox container =
-                    context.findRenderObject() as RenderBox;
+                final RenderBox container = context.findRenderObject() as RenderBox;
                 final pos = container.globalToLocal(detail.globalPosition);
                 if (pos.dy > widget.positionLimit &&
                     pos.dy < (container.size.height - widget.positionLimit)) {
@@ -113,8 +112,8 @@ class _SplitViewState extends State<SplitView> {
   }
 
   Widget _buildHorizontalView(BuildContext context, BoxConstraints constraints, double w) {
-    final double left = constraints.maxWidth * w;
-    final double right = constraints.maxWidth * (1.0 - w);
+    final double left = constraints.maxWidth * w - (widget.gripSize / 2.0);
+    final double right = constraints.maxWidth * (1.0 - w) + (widget.gripSize / 2.0);
 
     return Stack(
       children: <Widget>[
@@ -142,8 +141,7 @@ class _SplitViewState extends State<SplitView> {
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
               onVerticalDragUpdate: (detail) {
-                final RenderBox container =
-                    context.findRenderObject() as RenderBox;
+                final RenderBox container = context.findRenderObject() as RenderBox;
                 final pos = container.globalToLocal(detail.globalPosition);
                 if (pos.dx > widget.positionLimit &&
                     pos.dx < (container.size.width - widget.positionLimit)) {

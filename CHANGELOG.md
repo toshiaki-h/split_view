@@ -1,3 +1,7 @@
+## 1.0.3
+
+* For Positioned widgets that wrap view1 and view2, adjust either the left, right, bottom, or top fields, taking into account widget.gripSize. (cedarbob)
+
 ## 1.0.2
 
 * Set mouse cursor for Desktop & Web (jpnurmi)
