@@ -67,8 +67,9 @@ class _SplitViewState extends State<SplitView> {
   }
 
   Stack _buildVerticalView(BuildContext context, BoxConstraints constraints, double w) {
-    double top = constraints.maxHeight * w - (widget.gripSize / 2.0);
-    double bottom = constraints.maxHeight * (1.0 - w) + (widget.gripSize / 2.0);
+    final double top = constraints.maxHeight * w;
+    final double bottom = constraints.maxHeight * (1.0 - w);
+    final halfGripSize = widget.gripSize / 2.0;
 
     return Stack(
       children: <Widget>[
@@ -76,21 +77,21 @@ class _SplitViewState extends State<SplitView> {
           top: 0,
           left: 0,
           right: 0,
-          bottom: bottom,
+          bottom: bottom + halfGripSize,
           child: widget.view1,
         ),
         Positioned(
-          top: top,
+          top: top + halfGripSize,
           left: 0,
           right: 0,
           bottom: 0,
           child: widget.view2,
         ),
         Positioned(
-          top: top - widget.gripSize / 2.0,
+          top: top - halfGripSize,
           left: 0,
           right: 0,
-          bottom: bottom - widget.gripSize / 2.0,
+          bottom: bottom - halfGripSize,
           child: MouseRegion(
             cursor: SystemMouseCursors.resizeRow,
             child: GestureDetector(
@@ -112,29 +113,30 @@ class _SplitViewState extends State<SplitView> {
   }
 
   Widget _buildHorizontalView(BuildContext context, BoxConstraints constraints, double w) {
-    final double left = constraints.maxWidth * w - (widget.gripSize / 2.0);
-    final double right = constraints.maxWidth * (1.0 - w) + (widget.gripSize / 2.0);
+    final double left = constraints.maxWidth * w;
+    final double right = constraints.maxWidth * (1.0 - w);
+    final double halfGripSize = widget.gripSize / 2.0;
 
     return Stack(
       children: <Widget>[
         Positioned(
           top: 0,
           left: 0,
-          right: right,
+          right: right + halfGripSize,
           bottom: 0,
           child: widget.view1,
         ),
         Positioned(
           top: 0,
-          left: left,
+          left: left + halfGripSize,
           right: 0,
           bottom: 0,
           child: widget.view2,
         ),
         Positioned(
           top: 0,
-          left: left - widget.gripSize / 2.0,
-          right: right - widget.gripSize / 2.0,
+          left: left - halfGripSize,
+          right: right - halfGripSize,
           bottom: 0,
           child: MouseRegion(
             cursor: SystemMouseCursors.resizeColumn,
