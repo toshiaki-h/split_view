@@ -16,6 +16,7 @@ class SplitView extends StatefulWidget {
   final ValueChanged<double> onWeightChanged;
 
   SplitView({
+    Key key,
     @required this.view1,
     @required this.view2,
     @required this.viewMode,
@@ -24,7 +25,7 @@ class SplitView extends StatefulWidget {
     this.gripColor = Colors.grey,
     this.positionLimit = 20.0,
     this.onWeightChanged,
-  });
+  }) : super(key: key);
 
   @override
   State createState() => _SplitViewState();
@@ -38,7 +39,8 @@ class _SplitViewState extends State<SplitView> {
   @override
   void initState() {
     super.initState();
-    this.defaultWeight = widget.initialWeight;
+    this.defaultWeight =
+        PageStorage.of(context)?.readState(context) as double ?? widget.initialWeight;
   }
 
   @override
@@ -53,6 +55,7 @@ class _SplitViewState extends State<SplitView> {
           builder: (_, w, __) {
             if (widget.onWeightChanged != null && _prevWeight != w) {
               _prevWeight = w;
+              PageStorage.of(context)?.writeState(context, w);
               widget.onWeightChanged(w);
             }
             if (widget.viewMode == SplitViewMode.Vertical) {
