@@ -1,3 +1,7 @@
+## 1.0.4
+
+* Add key field to SplitView's constructor in order to save the split bar position.
+
 ## 1.0.3+1
 
 * Fix bug.
