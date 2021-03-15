@@ -4,10 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
+import 'src/child.dart';
+
+export 'src/child.dart';
+
 /// SplitView
-class SplitView extends StatefulWidget {
-  final Widget view1;
-  final Widget view2;
+class SplitView extends StatelessWidget {
+  final List<SplitViewChild> children;
   final SplitViewMode viewMode;
   final double gripSize;
   final double initialWeight;
@@ -17,15 +20,78 @@ class SplitView extends StatefulWidget {
 
   SplitView({
     Key key,
-    @required this.view1,
-    @required this.view2,
+    @required this.children,
     @required this.viewMode,
     this.gripSize = 12.0,
     this.initialWeight = 0.5,
     this.gripColor = Colors.grey,
     this.positionLimit = 20.0,
     this.onWeightChanged,
-  }) : super(key: key);
+  })  : assert(children != null),
+        assert(children.length >= 2),
+        super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> _children = [];
+
+    for (int i = 0; i < children.length; i++) {
+      _children.add(LayoutId(id: 'splitviewchild$i', child: children[i]));
+    }
+
+    return CustomMultiChildLayout(
+      delegate: _SplitViewLayout(
+        count: _children.length,
+        viewMode: this.viewMode,
+        gripSize: this.gripSize,
+      ),
+      children: _children,
+    );
+  }
+}
+
+class _SplitViewLayout extends MultiChildLayoutDelegate {
+  final int count;
+  final SplitViewMode viewMode;
+  final double gripSize;
+
+  _SplitViewLayout({
+    this.count,
+    this.viewMode,
+    this.gripSize,
+  });
+
+  @override
+  void performLayout(Size size) {
+    final double width = this.viewMode == SplitViewMode.Horizontal
+        ? (size.width - this.gripSize * (count - 1)) / count
+        : size.width;
+    final double height = this.viewMode == SplitViewMode.Vertical
+        ? (size.height - this.gripSize * (count - 1)) / count
+        : size.height;
+
+    for (int i = 0; i < count; i++) {
+      String childId = 'splitviewchild$i';
+      double left =
+          this.viewMode == SplitViewMode.Horizontal ? (width + gripSize) * i.toDouble() : 0;
+      double top = this.viewMode == SplitViewMode.Vertical ? (height + gripSize) * i.toDouble() : 0;
+      final Rect layout = Rect.fromLTRB(left, top, width + left, height + top);
+      if (hasChild(childId)) {
+        layoutChild(childId, BoxConstraints.tight(layout.size));
+        positionChild(childId, layout.topLeft);
+      }
+    }
+  }
+
+  @override
+  bool shouldRelayout(covariant _SplitViewLayout oldDelegate) {
+    return count != oldDelegate.count;
+  }
+}
+
+/*
+class SplitView extends StatefulWidget {
+
 
   @override
   State createState() => _SplitViewState();
@@ -161,7 +227,7 @@ class _SplitViewState extends State<SplitView> {
     );
   }
 }
-
+*/
 enum SplitViewMode {
   Vertical,
   Horizontal,
