@@ -27,6 +27,17 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  List<int> items = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    for (int i = 0; i < 10; i++) {
+      items.add(i);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -61,9 +72,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 onWeightChanged: (w) => print("Horizon: $w"),
               ),
               view2: Container(
-                child: Center(
-                  child: Text("View3"),
-                ),
+                child: ListView.separated(
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text("Item ${items[index]}"),
+                      );
+                    },
+                    separatorBuilder: (context, index) => Divider(),
+                    itemCount: items.length),
                 color: Colors.green,
               ),
               viewMode: SplitViewMode.Vertical,

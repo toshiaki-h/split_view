@@ -39,8 +39,14 @@ class _SplitViewState extends State<SplitView> {
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
     this.defaultWeight =
-        PageStorage.of(context)?.readState(context) as double ?? widget.initialWeight;
+        PageStorage.of(context)?.readState(context, identifier: widget.key) ?? widget.initialWeight;
   }
 
   @override
@@ -55,7 +61,7 @@ class _SplitViewState extends State<SplitView> {
           builder: (_, w, __) {
             if (widget.onWeightChanged != null && _prevWeight != w) {
               _prevWeight = w;
-              PageStorage.of(context)?.writeState(context, w);
+              PageStorage.of(context)?.writeState(context, w, identifier: widget.key);
               widget.onWeightChanged(w);
             }
             if (widget.viewMode == SplitViewMode.Vertical) {
