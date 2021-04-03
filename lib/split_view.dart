@@ -13,13 +13,13 @@ class SplitView extends StatefulWidget {
   final double initialWeight;
   final Color gripColor;
   final double positionLimit;
-  final ValueChanged<double> onWeightChanged;
+  final ValueChanged<double?>? onWeightChanged;
 
   SplitView({
-    Key key,
-    @required this.view1,
-    @required this.view2,
-    @required this.viewMode,
+    Key? key,
+    required this.view1,
+    required this.view2,
+    required this.viewMode,
     this.gripSize = 12.0,
     this.initialWeight = 0.5,
     this.gripColor = Colors.grey,
@@ -32,9 +32,9 @@ class SplitView extends StatefulWidget {
 }
 
 class _SplitViewState extends State<SplitView> {
-  double defaultWeight;
-  ValueNotifier<double> weight;
-  double _prevWeight;
+  double? defaultWeight;
+  late ValueNotifier<double?> weight;
+  double? _prevWeight;
 
   @override
   void initState() {
@@ -57,19 +57,19 @@ class _SplitViewState extends State<SplitView> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        return ValueListenableBuilder<double>(
+        return ValueListenableBuilder<double?>(
           valueListenable: weight,
           builder: (_, w, __) {
             if (widget.onWeightChanged != null && _prevWeight != w) {
               _prevWeight = w;
               PageStorage.of(context)
                   ?.writeState(context, w, identifier: widget.key);
-              widget.onWeightChanged(w);
+              widget.onWeightChanged!(w);
             }
             if (widget.viewMode == SplitViewMode.Vertical) {
-              return _buildVerticalView(context, constraints, w);
+              return _buildVerticalView(context, constraints, w!);
             } else {
-              return _buildHorizontalView(context, constraints, w);
+              return _buildHorizontalView(context, constraints, w!);
             }
           },
         );

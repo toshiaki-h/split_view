@@ -1,3 +1,6 @@
+## 2.0.0
+* Migrate to null safety
+
 ## 1.0.4
 
 * Add key field to SplitView's constructor in order to save the split bar position.

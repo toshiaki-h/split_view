@@ -1,10 +1,10 @@
 name: split_view
 description: This wedget provides horizontal or vertical split view for flutter.
-version: 1.0.4+1
+version: 2.0.0+2
 homepage: https://github.com/toshiaki-h/split_view
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   flutter:
