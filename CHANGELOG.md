@@ -1,3 +1,9 @@
+## 1.0.5
+
+* Added optional fields for limit the sidebar size.
+* Fix bug: Initial weight was used when calling `setState()`.
+* Improvement: The `ValueNotifier<double?>` is initialized once.
+
 ## 1.0.4
 
 * Add key field to SplitView's constructor in order to save the split bar position.
