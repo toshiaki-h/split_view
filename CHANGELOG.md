@@ -1,3 +1,7 @@
+## 1.0.4.+1
+
+* Add identifier field to read/writeState methods. In order to identify the weight of each Splitview.
+
 ## 1.0.4
 
 * Add key field to SplitView's constructor in order to save the split bar position.
