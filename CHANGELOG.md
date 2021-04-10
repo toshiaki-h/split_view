@@ -1,3 +1,7 @@
+## 2.0.0
+
+* Migrate to null safety
+
 ## 1.0.4.+1
 
 * Add identifier field to read/writeState methods. In order to identify the weight of each Splitview.
