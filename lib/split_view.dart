@@ -37,11 +37,6 @@ class _SplitViewState extends State<SplitView> {
   double? _prevWeight;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
