@@ -1,6 +1,12 @@
+## 2.0.1
+
+* Added optional fields for limit the sidebar size. (efraespada)
+* Fix bug: Initial weight was used when calling `setState()`. (efraespada)
+* Improvement: The `ValueNotifier<double?>` is initialized once. (efraespada)
+
 ## 2.0.0
 
-* Migrate to null safety
+* Migrate to null safety (GroovinChip)
 
 ## 1.0.4.+1
 
