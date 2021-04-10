@@ -1,3 +1,9 @@
+## 2.0.1
+
+* Added optional fields for limit the sidebar size.
+* Fix bug: Initial weight was used when calling `setState()`.
+* Improvement: The `ValueNotifier<double?>` is initialized once.
+
 ## 2.0.0
 
 * Migrate to null safety
