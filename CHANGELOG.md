@@ -1,3 +1,7 @@
+## 2.0.1+1
+
+* Add comments for dartdoc.
+
 ## 2.0.1
 
 * Added optional fields for limit the sidebar size. (efraespada)
