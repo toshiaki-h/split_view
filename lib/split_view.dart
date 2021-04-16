@@ -4,21 +4,56 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
-/// SplitView
+/// A SplitView class.
 class SplitView extends StatefulWidget {
+  /// The [view1] is first view.
   final Widget view1;
+
+  /// The [view2] is second view.
   final Widget view2;
+
+  /// The [viewMode] specifies how to arrange views.
   final SplitViewMode viewMode;
+
+  /// The grip size.
   final double gripSize;
+
+  /// Specifies the minimum movement range of the grip.
+  ///
+  /// If [viewMode] is Vertical, this property will be ignored.
   final double? minWidthSidebar;
+
+  /// Specifies the maximum movement range of the grip.
+  ///
+  /// If [viewMode] is Vertical, this property will be ignored.
   final double? maxWidthSidebar;
+
+  /// Specifies the minimum movement range of the grip.
+  ///
+  /// If [viewMode] is Vertical, this property will be ignored.
   final double? minHeightSidebar;
+
+  /// Specifies the maximum movement range of the grip.
+  ///
+  /// If [viewMode] is Vertical, this property will be ignored.
   final double? maxHeightSidebar;
+
+  /// Initial value of division ratio.
   final double initialWeight;
+
+  /// Grip color.
   final Color gripColor;
+
+  /// Up / down or left / right movement prohibited range.
+  ///
+  /// Same as minWidthSidebar/maxWidthSidebar or minHeightSidebar/maxHeightSidebar,
+  /// but cannot be specified individually.
   final double positionLimit;
+
+  /// Called when the user moves the grip.
   final ValueChanged<double?>? onWeightChanged;
 
+  /// Creates an [SplitView].
   SplitView({
     Key? key,
     required this.view1,
@@ -185,7 +220,11 @@ class _SplitViewState extends State<SplitView> {
   }
 }
 
+/// Arranges view order.
 enum SplitViewMode {
+  /// Arranges vertically.
   Vertical,
+
+  /// Arranges horizontally.
   Horizontal,
 }
