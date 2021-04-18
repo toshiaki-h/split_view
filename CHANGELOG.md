@@ -1,3 +1,7 @@
+## 2.0.1+2
+
+* Formatted by dartfmt.
+
 ## 2.0.1+1
 
 * Add comments for dartdoc.
