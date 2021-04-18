@@ -4,130 +4,108 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
-import 'src/child.dart';
+/// A SplitView class.
+class SplitView extends StatefulWidget {
+  /// The [view1] is first view.
+  final Widget view1;
 
-export 'src/child.dart';
+  /// The [view2] is second view.
+  final Widget view2;
 
-/// SplitView
-class SplitView extends StatelessWidget {
-  final List<SplitViewChild> children;
+  /// The [viewMode] specifies how to arrange views.
   final SplitViewMode viewMode;
-  final double gripSize;
-  final double initialWeight;
-  final Color gripColor;
-  final double positionLimit;
-  final ValueChanged<double> onWeightChanged;
 
+  /// The grip size.
+  final double gripSize;
+
+  /// Specifies the minimum movement range of the grip.
+  ///
+  /// If [viewMode] is Vertical, this property will be ignored.
+  final double? minWidthSidebar;
+
+  /// Specifies the maximum movement range of the grip.
+  ///
+  /// If [viewMode] is Vertical, this property will be ignored.
+  final double? maxWidthSidebar;
+
+  /// Specifies the minimum movement range of the grip.
+  ///
+  /// If [viewMode] is Vertical, this property will be ignored.
+  final double? minHeightSidebar;
+
+  /// Specifies the maximum movement range of the grip.
+  ///
+  /// If [viewMode] is Vertical, this property will be ignored.
+  final double? maxHeightSidebar;
+
+  /// Initial value of division ratio.
+  final double initialWeight;
+
+  /// Grip color.
+  final Color gripColor;
+
+  /// Up / down or left / right movement prohibited range.
+  ///
+  /// Same as minWidthSidebar/maxWidthSidebar or minHeightSidebar/maxHeightSidebar,
+  /// but cannot be specified individually.
+  final double positionLimit;
+
+  /// Called when the user moves the grip.
+  final ValueChanged<double?>? onWeightChanged;
+
+  /// Creates an [SplitView].
   SplitView({
-    Key key,
-    @required this.children,
-    @required this.viewMode,
+    Key? key,
+    required this.view1,
+    required this.view2,
+    required this.viewMode,
     this.gripSize = 12.0,
+    this.minWidthSidebar,
+    this.maxWidthSidebar,
+    this.minHeightSidebar,
+    this.maxHeightSidebar,
     this.initialWeight = 0.5,
     this.gripColor = Colors.grey,
     this.positionLimit = 20.0,
     this.onWeightChanged,
-  })  : assert(children != null),
-        assert(children.length >= 2),
-        super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    List<Widget> _children = [];
-
-    for (int i = 0; i < children.length; i++) {
-      _children.add(LayoutId(id: 'splitviewchild$i', child: children[i]));
-    }
-
-    return CustomMultiChildLayout(
-      delegate: _SplitViewLayout(
-        count: _children.length,
-        viewMode: this.viewMode,
-        gripSize: this.gripSize,
-      ),
-      children: _children,
-    );
-  }
-}
-
-class _SplitViewLayout extends MultiChildLayoutDelegate {
-  final int count;
-  final SplitViewMode viewMode;
-  final double gripSize;
-
-  _SplitViewLayout({
-    this.count,
-    this.viewMode,
-    this.gripSize,
-  });
-
-  @override
-  void performLayout(Size size) {
-    final double width = this.viewMode == SplitViewMode.Horizontal
-        ? (size.width - this.gripSize * (count - 1)) / count
-        : size.width;
-    final double height = this.viewMode == SplitViewMode.Vertical
-        ? (size.height - this.gripSize * (count - 1)) / count
-        : size.height;
-
-    for (int i = 0; i < count; i++) {
-      String childId = 'splitviewchild$i';
-      double left =
-          this.viewMode == SplitViewMode.Horizontal ? (width + gripSize) * i.toDouble() : 0;
-      double top = this.viewMode == SplitViewMode.Vertical ? (height + gripSize) * i.toDouble() : 0;
-      final Rect layout = Rect.fromLTRB(left, top, width + left, height + top);
-      if (hasChild(childId)) {
-        layoutChild(childId, BoxConstraints.tight(layout.size));
-        positionChild(childId, layout.topLeft);
-      }
-    }
-  }
-
-  @override
-  bool shouldRelayout(covariant _SplitViewLayout oldDelegate) {
-    return count != oldDelegate.count;
-  }
-}
-
-/*
-class SplitView extends StatefulWidget {
-
+  }) : super(key: key);
 
   @override
   State createState() => _SplitViewState();
 }
 
 class _SplitViewState extends State<SplitView> {
-  double defaultWeight;
-  ValueNotifier<double> weight;
-  double _prevWeight;
+  double? defaultWeight;
+  late ValueNotifier<double?> weight;
+  double? _prevWeight;
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
     this.defaultWeight =
-        PageStorage.of(context)?.readState(context) as double ?? widget.initialWeight;
+        PageStorage.of(context)?.readState(context, identifier: widget.key) ??
+            widget.initialWeight;
+    weight = ValueNotifier(defaultWeight);
   }
 
   @override
   Widget build(BuildContext context) {
-    weight = ValueNotifier(defaultWeight);
-    _prevWeight = defaultWeight;
-
     return LayoutBuilder(
       builder: (context, constraints) {
-        return ValueListenableBuilder<double>(
+        return ValueListenableBuilder<double?>(
           valueListenable: weight,
           builder: (_, w, __) {
             if (widget.onWeightChanged != null && _prevWeight != w) {
               _prevWeight = w;
-              PageStorage.of(context)?.writeState(context, w);
-              widget.onWeightChanged(w);
+              PageStorage.of(context)
+                  ?.writeState(context, w, identifier: widget.key);
+              widget.onWeightChanged!(w);
             }
             if (widget.viewMode == SplitViewMode.Vertical) {
-              return _buildVerticalView(context, constraints, w);
+              return _buildVerticalView(context, constraints, w!);
             } else {
-              return _buildHorizontalView(context, constraints, w);
+              return _buildHorizontalView(context, constraints, w!);
             }
           },
         );
@@ -135,10 +113,20 @@ class _SplitViewState extends State<SplitView> {
     );
   }
 
-  Stack _buildVerticalView(BuildContext context, BoxConstraints constraints, double w) {
-    final double top = constraints.maxHeight * w;
-    final double bottom = constraints.maxHeight * (1.0 - w);
+  Stack _buildVerticalView(
+      BuildContext context, BoxConstraints constraints, double w) {
+    double top = constraints.maxHeight * w;
+    double bottom = constraints.maxHeight * (1.0 - w);
     final halfGripSize = widget.gripSize / 2.0;
+
+    if (widget.maxHeightSidebar != null && top > widget.maxHeightSidebar!) {
+      top = widget.maxHeightSidebar!;
+      bottom = constraints.maxHeight - widget.maxHeightSidebar!;
+    } else if (widget.minHeightSidebar != null &&
+        top < widget.minHeightSidebar!) {
+      top = widget.minHeightSidebar!;
+      bottom = constraints.maxHeight - widget.minHeightSidebar!;
+    }
 
     return Stack(
       children: <Widget>[
@@ -166,7 +154,8 @@ class _SplitViewState extends State<SplitView> {
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
               onVerticalDragUpdate: (detail) {
-                final RenderBox container = context.findRenderObject() as RenderBox;
+                final RenderBox container =
+                    context.findRenderObject() as RenderBox;
                 final pos = container.globalToLocal(detail.globalPosition);
                 if (pos.dy > widget.positionLimit &&
                     pos.dy < (container.size.height - widget.positionLimit)) {
@@ -181,10 +170,20 @@ class _SplitViewState extends State<SplitView> {
     );
   }
 
-  Widget _buildHorizontalView(BuildContext context, BoxConstraints constraints, double w) {
-    final double left = constraints.maxWidth * w;
-    final double right = constraints.maxWidth * (1.0 - w);
+  Widget _buildHorizontalView(
+      BuildContext context, BoxConstraints constraints, double w) {
+    double left = constraints.maxWidth * w;
+    double right = constraints.maxWidth * (1.0 - w);
     final double halfGripSize = widget.gripSize / 2.0;
+
+    if (widget.maxWidthSidebar != null && left > widget.maxWidthSidebar!) {
+      left = widget.maxWidthSidebar!;
+      right = constraints.maxWidth - widget.maxWidthSidebar!;
+    } else if (widget.minWidthSidebar != null &&
+        left < widget.minWidthSidebar!) {
+      left = widget.minWidthSidebar!;
+      right = constraints.maxWidth - widget.minWidthSidebar!;
+    }
 
     return Stack(
       children: <Widget>[
@@ -212,7 +211,8 @@ class _SplitViewState extends State<SplitView> {
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
               onVerticalDragUpdate: (detail) {
-                final RenderBox container = context.findRenderObject() as RenderBox;
+                final RenderBox container =
+                    context.findRenderObject() as RenderBox;
                 final pos = container.globalToLocal(detail.globalPosition);
                 if (pos.dx > widget.positionLimit &&
                     pos.dx < (container.size.width - widget.positionLimit)) {
@@ -227,8 +227,12 @@ class _SplitViewState extends State<SplitView> {
     );
   }
 }
-*/
+
+/// Arranges view order.
 enum SplitViewMode {
+  /// Arranges vertically.
   Vertical,
+
+  /// Arranges horizontally.
   Horizontal,
 }

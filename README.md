@@ -6,7 +6,7 @@ A splitter view for flutter.
 To use this plugin, add split_view as a [dependency in your pubspec.yaml file](https://flutter.io/platform-plugins/).
 
 ## Example
-```
+```dart
 import 'package:flutter/material.dart';
 import 'package:split_view/split_view.dart';
 
@@ -44,8 +44,12 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: SplitView(
         initialWeight: 0.7,
+        minHeightSidebar: 300,
+        maxHeightSidebar: 400,
         view1: SplitView(
           viewMode: SplitViewMode.Horizontal,
+          minWidthSidebar: 300,
+          maxWidthSidebar: 400,
           view1: Container(
             child: Center(child: Text("View1")),
             color: Colors.red,
