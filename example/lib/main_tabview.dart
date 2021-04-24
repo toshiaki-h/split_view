@@ -58,20 +58,20 @@ class _MyHomePageState extends State<MyHomePage> {
             SplitView(
               key: PageStorageKey(0),
               initialWeight: 0.7,
-              view1: SplitView(
+              leading: SplitView(
                 key: PageStorageKey(1),
                 viewMode: SplitViewMode.Horizontal,
-                view1: Container(
+                leading: Container(
                   child: Center(child: Text("View1")),
                   color: Colors.red,
                 ),
-                view2: Container(
+                trailing: Container(
                   child: Center(child: Text("View2")),
                   color: Colors.blue,
                 ),
                 onWeightChanged: (w) => print("Horizon: $w"),
               ),
-              view2: Container(
+              trailing: Container(
                 child: ListView.separated(
                     itemBuilder: (context, index) {
                       return ListTile(

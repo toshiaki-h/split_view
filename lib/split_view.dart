@@ -6,11 +6,11 @@ import 'package:flutter/widgets.dart';
 
 /// A SplitView class.
 class SplitView extends StatefulWidget {
-  /// The [view1] is first view.
-  final Widget view1;
+  /// The [leading] is first view.
+  final Widget leading;
 
-  /// The [view2] is second view.
-  final Widget view2;
+  /// The [trailing] is second view.
+  final Widget trailing;
 
   /// The [viewMode] specifies how to arrange views.
   final SplitViewMode viewMode;
@@ -50,14 +50,22 @@ class SplitView extends StatefulWidget {
   /// but cannot be specified individually.
   final double positionLimit;
 
+  /// If `TextDirection.ltr` then [leading] is on the left side and [trailing] is on the right side, else
+  /// [trailing] is on the left side and [leading] is on the right side.
+  ///
+  /// If `null`, then the result of `Directionality.of(context)` is used.
+  ///
+  /// If [viewMode] is Vertical, this property will be ignored.
+  final TextDirection? direction;
+
   /// Called when the user moves the grip.
   final ValueChanged<double?>? onWeightChanged;
 
   /// Creates an [SplitView].
   SplitView({
     Key? key,
-    required this.view1,
-    required this.view2,
+    required this.leading,
+    required this.trailing,
     required this.viewMode,
     this.gripSize = 12.0,
     this.minWidthSidebar,
@@ -68,6 +76,7 @@ class SplitView extends StatefulWidget {
     this.gripColor = Colors.grey,
     this.positionLimit = 20.0,
     this.onWeightChanged,
+    this.direction,
   }) : super(key: key);
 
   @override
@@ -135,14 +144,14 @@ class _SplitViewState extends State<SplitView> {
           left: 0,
           right: 0,
           bottom: bottom + halfGripSize,
-          child: widget.view1,
+          child: widget.leading,
         ),
         Positioned(
           top: top + halfGripSize,
           left: 0,
           right: 0,
           bottom: 0,
-          child: widget.view2,
+          child: widget.trailing,
         ),
         Positioned(
           top: top - halfGripSize,
@@ -185,6 +194,14 @@ class _SplitViewState extends State<SplitView> {
       right = constraints.maxWidth - widget.minWidthSidebar!;
     }
 
+    final directionality = Directionality.of(context);
+
+    final leftView =
+        directionality == TextDirection.ltr ? widget.leading : widget.trailing;
+
+    final rightView =
+        directionality == TextDirection.ltr ? widget.trailing : widget.leading;
+
     return Stack(
       children: <Widget>[
         Positioned(
@@ -192,14 +209,14 @@ class _SplitViewState extends State<SplitView> {
           left: 0,
           right: right + halfGripSize,
           bottom: 0,
-          child: widget.view1,
+          child: leftView,
         ),
         Positioned(
           top: 0,
           left: left + halfGripSize,
           right: 0,
           bottom: 0,
-          child: widget.view2,
+          child: rightView,
         ),
         Positioned(
           top: 0,
