@@ -1,3 +1,7 @@
+## 2.1.0
+
+* Added optional field for split bar color while dragging.
+
 ## 2.0.1+2
 
 * Formatted by dartfmt.

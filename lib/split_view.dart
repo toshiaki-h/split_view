@@ -6,6 +6,13 @@ import 'package:flutter/widgets.dart';
 
 /// A SplitView class.
 class SplitView extends StatefulWidget {
+  static const Color defaultGripColor = Colors.grey;
+  static const Color defaultGripColorActive =
+      Color.fromARGB(0xff, 0x66, 0x66, 0x66);
+  static const double defaultGripSize = 12.0;
+  static const double defaultInitialWeight = 0.5;
+  static const double defaultPositionLimit = 20.0;
+
   /// The [view1] is first view.
   final Widget view1;
 
@@ -44,6 +51,9 @@ class SplitView extends StatefulWidget {
   /// Grip color.
   final Color gripColor;
 
+  /// Active grip color.
+  final Color gripColorActive;
+
   /// Up / down or left / right movement prohibited range.
   ///
   /// Same as minWidthSidebar/maxWidthSidebar or minHeightSidebar/maxHeightSidebar,
@@ -59,14 +69,15 @@ class SplitView extends StatefulWidget {
     required this.view1,
     required this.view2,
     required this.viewMode,
-    this.gripSize = 12.0,
+    this.gripSize = defaultGripSize,
     this.minWidthSidebar,
     this.maxWidthSidebar,
     this.minHeightSidebar,
     this.maxHeightSidebar,
-    this.initialWeight = 0.5,
-    this.gripColor = Colors.grey,
-    this.positionLimit = 20.0,
+    this.initialWeight = defaultInitialWeight,
+    this.gripColor = defaultGripColor,
+    this.gripColorActive = defaultGripColorActive,
+    this.positionLimit = defaultPositionLimit,
     this.onWeightChanged,
   }) : super(key: key);
 
@@ -78,6 +89,7 @@ class _SplitViewState extends State<SplitView> {
   double? defaultWeight;
   late ValueNotifier<double?> weight;
   double? _prevWeight;
+  late Color _gripColor;
 
   @override
   void didChangeDependencies() {
@@ -87,6 +99,7 @@ class _SplitViewState extends State<SplitView> {
         PageStorage.of(context)?.readState(context, identifier: widget.key) ??
             widget.initialWeight;
     weight = ValueNotifier(defaultWeight);
+    _gripColor = widget.gripColor;
   }
 
   @override
@@ -153,6 +166,12 @@ class _SplitViewState extends State<SplitView> {
             cursor: SystemMouseCursors.resizeRow,
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
+              onVerticalDragStart: (details) {
+                _gripColor = widget.gripColorActive;
+              },
+              onVerticalDragEnd: (details) {
+                setState(() => _gripColor = widget.gripColor);
+              },
               onVerticalDragUpdate: (detail) {
                 final RenderBox container =
                     context.findRenderObject() as RenderBox;
@@ -162,7 +181,7 @@ class _SplitViewState extends State<SplitView> {
                   weight.value = pos.dy / container.size.height;
                 }
               },
-              child: Container(color: widget.gripColor),
+              child: Container(color: _gripColor),
             ),
           ),
         ),
@@ -210,7 +229,12 @@ class _SplitViewState extends State<SplitView> {
             cursor: SystemMouseCursors.resizeColumn,
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
-              onVerticalDragUpdate: (detail) {
+              onHorizontalDragDown: (details) =>
+                  _gripColor = widget.gripColorActive,
+              onHorizontalDragEnd: (details) {
+                setState(() => _gripColor = widget.gripColor);
+              },
+              onHorizontalDragUpdate: (detail) {
                 final RenderBox container =
                     context.findRenderObject() as RenderBox;
                 final pos = container.globalToLocal(detail.globalPosition);
@@ -219,7 +243,7 @@ class _SplitViewState extends State<SplitView> {
                   weight.value = pos.dx / container.size.width;
                 }
               },
-              child: Container(color: widget.gripColor),
+              child: Container(color: _gripColor),
             ),
           ),
         ),
