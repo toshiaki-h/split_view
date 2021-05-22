@@ -36,32 +36,31 @@ class _MyHomePageState extends State<MyHomePage> {
       body: SplitView(
         initialWeight: 0.7,
         children: [
-          SplitViewChild(
-            child: SplitView(
-              viewMode: SplitViewMode.Horizontal,
-              children: [
-                SplitViewChild(
-                  child: Container(
-                    child: Center(child: Text("View1")),
-                    color: Colors.red,
-                  ),
-                ),
-                SplitViewChild(
-                    child: Container(
-                  child: Center(child: Text("View2")),
-                  color: Colors.blue,
-                )),
-              ],
-              onWeightChanged: (w) => print("Horizon: $w"),
-            ),
-          ),
-          SplitViewChild(
-            child: Container(
-              child: Center(
-                child: Text("View3"),
+          SplitView(
+            viewMode: SplitViewMode.Horizontal,
+            children: [
+              Container(
+                child: Center(child: Text("View1")),
+                color: Colors.red,
               ),
-              color: Colors.green,
-            ),
+              Container(
+                child: Center(child: Text("View2")),
+                color: Colors.blue,
+              ),
+              Container(
+                child: Center(child: Text("View3")),
+                color: Colors.green,
+              ),
+            ],
+            onWeightChanged: (w) => print("Horizon: $w"),
+          ),
+          Container(
+            child: Center(child: Text("View4")),
+            color: Colors.purple,
+          ),
+          Container(
+            child: Center(child: Text("View5")),
+            color: Colors.yellow,
           ),
         ],
         viewMode: SplitViewMode.Vertical,
