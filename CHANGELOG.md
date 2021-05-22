@@ -1,3 +1,7 @@
+## 2.1.1
+
+* The color of the split bar is now highlighted when the mouse hovered when used on the web.
+
 ## 2.1.0
 
 * Added optional field for split bar color while dragging.
