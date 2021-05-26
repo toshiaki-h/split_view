@@ -1,3 +1,7 @@
+## 2.1.1+1
+
+* Formatted by dartfmt.
+
 ## 2.1.1
 
 * The color of the split bar is now highlighted when the mouse hovered when used on the web.

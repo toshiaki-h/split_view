@@ -152,7 +152,8 @@ class _SplitViewState extends State<SplitView> {
     if (widget.maxHeightSidebar != null && top > widget.maxHeightSidebar!) {
       top = widget.maxHeightSidebar!;
       bottom = constraints.maxHeight - widget.maxHeightSidebar!;
-    } else if (widget.minHeightSidebar != null && top < widget.minHeightSidebar!) {
+    } else if (widget.minHeightSidebar != null &&
+        top < widget.minHeightSidebar!) {
       top = widget.minHeightSidebar!;
       bottom = constraints.maxHeight - widget.minHeightSidebar!;
     }
@@ -240,7 +241,8 @@ class _SplitViewState extends State<SplitView> {
     if (widget.maxWidthSidebar != null && left > widget.maxWidthSidebar!) {
       left = widget.maxWidthSidebar!;
       right = constraints.maxWidth - widget.maxWidthSidebar!;
-    } else if (widget.minWidthSidebar != null && left < widget.minWidthSidebar!) {
+    } else if (widget.minWidthSidebar != null &&
+        left < widget.minWidthSidebar!) {
       left = widget.minWidthSidebar!;
       right = constraints.maxWidth - widget.minWidthSidebar!;
     }
