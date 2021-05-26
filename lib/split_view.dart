@@ -7,7 +7,8 @@ import 'package:flutter/widgets.dart';
 /// A SplitView class.
 class SplitView extends StatefulWidget {
   static const Color defaultGripColor = Colors.grey;
-  static const Color defaultGripColorActive = Color.fromARGB(0xff, 0x66, 0x66, 0x66);
+  static const Color defaultGripColorActive =
+      Color.fromARGB(0xff, 0x66, 0x66, 0x66);
   static const double defaultGripSize = 12.0;
   static const double defaultInitialWeight = 0.5;
   static const double defaultPositionLimit = 20.0;
@@ -96,7 +97,8 @@ class _SplitViewState extends State<SplitView> {
     super.didChangeDependencies();
 
     this.defaultWeight =
-        PageStorage.of(context)?.readState(context, identifier: widget.key) ?? widget.initialWeight;
+        PageStorage.of(context)?.readState(context, identifier: widget.key) ??
+            widget.initialWeight;
     weight = ValueNotifier(defaultWeight);
     _gripColor = widget.gripColor;
   }
@@ -110,7 +112,8 @@ class _SplitViewState extends State<SplitView> {
           builder: (_, w, __) {
             if (widget.onWeightChanged != null && _prevWeight != w) {
               _prevWeight = w;
-              PageStorage.of(context)?.writeState(context, w, identifier: widget.key);
+              PageStorage.of(context)
+                  ?.writeState(context, w, identifier: widget.key);
               widget.onWeightChanged!(w);
             }
             if (widget.viewMode == SplitViewMode.Vertical) {
@@ -124,7 +127,8 @@ class _SplitViewState extends State<SplitView> {
     );
   }
 
-  Stack _buildVerticalView(BuildContext context, BoxConstraints constraints, double w) {
+  Stack _buildVerticalView(
+      BuildContext context, BoxConstraints constraints, double w) {
     double top = constraints.maxHeight * w;
     double bottom = constraints.maxHeight * (1.0 - w);
     final halfGripSize = widget.gripSize / 2.0;
@@ -132,7 +136,8 @@ class _SplitViewState extends State<SplitView> {
     if (widget.maxHeightSidebar != null && top > widget.maxHeightSidebar!) {
       top = widget.maxHeightSidebar!;
       bottom = constraints.maxHeight - widget.maxHeightSidebar!;
-    } else if (widget.minHeightSidebar != null && top < widget.minHeightSidebar!) {
+    } else if (widget.minHeightSidebar != null &&
+        top < widget.minHeightSidebar!) {
       top = widget.minHeightSidebar!;
       bottom = constraints.maxHeight - widget.minHeightSidebar!;
     }
@@ -166,7 +171,8 @@ class _SplitViewState extends State<SplitView> {
               });
             },
             onExit: (_) {
-              if (_dragging == false) setState(() => _gripColor = widget.gripColor);
+              if (_dragging == false)
+                setState(() => _gripColor = widget.gripColor);
             },
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
@@ -179,7 +185,8 @@ class _SplitViewState extends State<SplitView> {
                 setState(() => _gripColor = widget.gripColor);
               },
               onVerticalDragUpdate: (detail) {
-                final RenderBox container = context.findRenderObject() as RenderBox;
+                final RenderBox container =
+                    context.findRenderObject() as RenderBox;
                 final pos = container.globalToLocal(detail.globalPosition);
                 if (pos.dy > widget.positionLimit &&
                     pos.dy < (container.size.height - widget.positionLimit)) {
@@ -194,7 +201,8 @@ class _SplitViewState extends State<SplitView> {
     );
   }
 
-  Widget _buildHorizontalView(BuildContext context, BoxConstraints constraints, double w) {
+  Widget _buildHorizontalView(
+      BuildContext context, BoxConstraints constraints, double w) {
     double left = constraints.maxWidth * w;
     double right = constraints.maxWidth * (1.0 - w);
     final double halfGripSize = widget.gripSize / 2.0;
@@ -202,7 +210,8 @@ class _SplitViewState extends State<SplitView> {
     if (widget.maxWidthSidebar != null && left > widget.maxWidthSidebar!) {
       left = widget.maxWidthSidebar!;
       right = constraints.maxWidth - widget.maxWidthSidebar!;
-    } else if (widget.minWidthSidebar != null && left < widget.minWidthSidebar!) {
+    } else if (widget.minWidthSidebar != null &&
+        left < widget.minWidthSidebar!) {
       left = widget.minWidthSidebar!;
       right = constraints.maxWidth - widget.minWidthSidebar!;
     }
@@ -236,7 +245,8 @@ class _SplitViewState extends State<SplitView> {
               });
             },
             onExit: (_) {
-              if (_dragging == false) setState(() => _gripColor = widget.gripColor);
+              if (_dragging == false)
+                setState(() => _gripColor = widget.gripColor);
             },
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
@@ -249,7 +259,8 @@ class _SplitViewState extends State<SplitView> {
                 setState(() => _gripColor = widget.gripColor);
               },
               onHorizontalDragUpdate: (detail) {
-                final RenderBox container = context.findRenderObject() as RenderBox;
+                final RenderBox container =
+                    context.findRenderObject() as RenderBox;
                 final pos = container.globalToLocal(detail.globalPosition);
                 if (pos.dx > widget.positionLimit &&
                     pos.dx < (container.size.width - widget.positionLimit)) {
