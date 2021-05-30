@@ -1,6 +1,7 @@
 library split_view;
 
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -12,11 +13,11 @@ class SplitView extends StatefulWidget {
   static const Color defaultGripColorActive =
       Color.fromARGB(0xff, 0x66, 0x66, 0x66);
   static const double defaultGripSize = 12.0;
-  static const double defaultInitialWeight = 0.5;
-  static const double defaultPositionLimit = 20.0;
+  static const double _weightLimit = 0.01;
 
   final List<Widget> children;
 
+  /// Controls the views being splitted.
   final SplitViewController? controller;
 
   /// The [viewMode] specifies how to arrange views.
@@ -25,43 +26,14 @@ class SplitView extends StatefulWidget {
   /// The grip size.
   final double gripSize;
 
-  /// Specifies the minimum movement range of the grip.
-  ///
-  /// If [viewMode] is Vertical, this property will be ignored.
-  final double? minWidthSidebar;
-
-  /// Specifies the maximum movement range of the grip.
-  ///
-  /// If [viewMode] is Vertical, this property will be ignored.
-  final double? maxWidthSidebar;
-
-  /// Specifies the minimum movement range of the grip.
-  ///
-  /// If [viewMode] is Vertical, this property will be ignored.
-  final double? minHeightSidebar;
-
-  /// Specifies the maximum movement range of the grip.
-  ///
-  /// If [viewMode] is Vertical, this property will be ignored.
-  final double? maxHeightSidebar;
-
-  /// Initial value of division ratio.
-  final double initialWeight;
-
   /// Grip color.
   final Color gripColor;
 
   /// Active grip color.
   final Color gripColorActive;
 
-  /// Up / down or left / right movement prohibited range.
-  ///
-  /// Same as minWidthSidebar/maxWidthSidebar or minHeightSidebar/maxHeightSidebar,
-  /// but cannot be specified individually.
-  final double positionLimit;
-
   /// Called when the user moves the grip.
-  final ValueChanged<double?>? onWeightChanged;
+  final ValueChanged<UnmodifiableListView<double?>>? onWeightChanged;
 
   /// Creates a [SplitView].
   SplitView({
@@ -70,14 +42,8 @@ class SplitView extends StatefulWidget {
     required this.viewMode,
     this.gripSize = defaultGripSize,
     this.controller,
-    this.minWidthSidebar,
-    this.maxWidthSidebar,
-    this.minHeightSidebar,
-    this.maxHeightSidebar,
-    this.initialWeight = defaultInitialWeight,
     this.gripColor = defaultGripColor,
     this.gripColorActive = defaultGripColorActive,
-    this.positionLimit = defaultPositionLimit,
     this.onWeightChanged,
   }) : super(key: key);
 
@@ -87,11 +53,14 @@ class SplitView extends StatefulWidget {
 
 class _SplitViewState extends State<SplitView> {
   late SplitViewController _controller;
-  double? defaultWeight;
-  late ValueNotifier<double?> weight;
-  double? _prevWeight;
   late Color _gripColor;
   bool _dragging = false;
+  int _activeIndex = -1;
+
+  late double _startWeight1;
+  late double _startWeight2;
+  late double _startSize;
+  late Offset _startDragPos;
 
   @override
   void initState() {
@@ -105,10 +74,6 @@ class _SplitViewState extends State<SplitView> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    this.defaultWeight =
-        PageStorage.of(context)?.readState(context, identifier: widget.key) ??
-            widget.initialWeight;
-    weight = ValueNotifier(defaultWeight);
     _gripColor = widget.gripColor;
   }
 
@@ -116,54 +81,27 @@ class _SplitViewState extends State<SplitView> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        _controller._init(widget.children.length);
         if (widget.viewMode == SplitViewMode.Vertical) {
-          return _buildVerticalView(context, constraints, _controller.weights);
+          return _buildVerticalView(
+              context, constraints, _controller.weights, _controller.limits);
         } else {
           return _buildHorizontalView(
               context, constraints, _controller.weights);
         }
-        // return ValueListenableBuilder<double?>(
-        //   valueListenable: weight,
-        //   builder: (_, w, __) {
-        //     if (widget.onWeightChanged != null && _prevWeight != w) {
-        //       _prevWeight = w;
-        //       PageStorage.of(context)?.writeState(context, w, identifier: widget.key);
-        //       widget.onWeightChanged!(w);
-        //     }
-        //     if (widget.viewMode == SplitViewMode.Vertical) {
-        //       return _buildVerticalView(context, constraints, w!);
-        //     } else {
-        //       return _buildHorizontalView(context, constraints, w!);
-        //     }
-        //   },
-        // );
       },
     );
   }
 
-  Stack _buildVerticalView(
-      BuildContext context, BoxConstraints constraints, List<double?> weights) {
+  Stack _buildVerticalView(BuildContext context, BoxConstraints constraints,
+      List<double?> weights, List<WeightLimit?> limits) {
     double viewsHeight = constraints.maxHeight -
         (widget.gripSize * (widget.children.length - 1));
     double top = 0;
 
-    //TODO: 移動制限の処理は後で
-    /*
-    if (widget.maxHeightSidebar != null && top > widget.maxHeightSidebar!) {
-      top = widget.maxHeightSidebar!;
-      bottom = constraints.maxHeight - widget.maxHeightSidebar!;
-    } else if (widget.minHeightSidebar != null &&
-        top < widget.minHeightSidebar!) {
-      top = widget.minHeightSidebar!;
-      bottom = constraints.maxHeight - widget.minHeightSidebar!;
-    }
-     */
-
-    //TODO: viewごとでweightが変わるので計算する処理がいる
-    double weight = 1.0 / widget.children.length;
-
     var children = <Widget>[];
     for (int i = 0; i < widget.children.length; i++) {
+      double weight = weights[i] ?? 0.1;
       var child = widget.children[i];
       children.add(Positioned(
         top: top,
@@ -183,41 +121,40 @@ class _SplitViewState extends State<SplitView> {
             cursor: SystemMouseCursors.resizeRow,
             onEnter: (event) {
               setState(() {
+                _activeIndex = i;
                 _gripColor = widget.gripColorActive;
               });
             },
             onExit: (_) {
-              if (_dragging == false)
+              if (_dragging == false) {
+                _activeIndex = -1;
                 setState(() => _gripColor = widget.gripColor);
+              }
             },
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
               onVerticalDragDown: (details) {
                 _dragging = true;
+                _activeIndex = i;
                 _gripColor = widget.gripColorActive;
+                _startDragPos =
+                    _getLocalPosition(context, details.globalPosition);
+                _startWeight1 = _controller.weights[i]!;
+                _startWeight2 = _controller.weights[i + 1]!;
+                _startSize = viewsHeight * _startWeight1;
               },
               onVerticalDragEnd: (details) {
                 _dragging = false;
+                _activeIndex = -1;
                 setState(() => _gripColor = widget.gripColor);
               },
               onVerticalDragUpdate: (detail) {
-                final RenderBox container =
-                    context.findRenderObject() as RenderBox;
-                final pos = container.globalToLocal(detail.globalPosition);
-                if (pos.dy > widget.positionLimit &&
-                    pos.dy < (container.size.height - widget.positionLimit)) {
-                  var weight1 = pos.dy / viewsHeight;
-                  var weight2 =
-                      (weights[i] ?? 0) + (weights[i + 1] ?? 0) - weight1;
-                  setState(() {
-                    _controller._weights[i] = weight1;
-                    _controller.weights[i + 1] = weight2;
-                  });
-                  //TODO: 変更があったことを通知する必要がある
-                  // weight.value = pos.dy / container.size.height;
-                }
+                final pos = _getLocalPosition(context, detail.globalPosition);
+                var diff = pos.dy - _startDragPos.dy;
+                _changeWeights(diff, viewsHeight, i);
               },
-              child: Container(color: widget.gripColor),
+              child: Container(
+                  color: _activeIndex == i ? _gripColor : widget.gripColor),
             ),
           ),
         ));
@@ -236,24 +173,19 @@ class _SplitViewState extends State<SplitView> {
         constraints.maxWidth - (widget.gripSize * (widget.children.length - 1));
     double left = 0;
 
-    //TODO: 移動制限の処理は後で
-    /*
-    if (widget.maxWidthSidebar != null && left > widget.maxWidthSidebar!) {
-      left = widget.maxWidthSidebar!;
-      right = constraints.maxWidth - widget.maxWidthSidebar!;
-    } else if (widget.minWidthSidebar != null &&
-        left < widget.minWidthSidebar!) {
-      left = widget.minWidthSidebar!;
-      right = constraints.maxWidth - widget.minWidthSidebar!;
-    }
-     */
-
-    //TODO: viewごとでweightが変わるので計算する処理がいる
-    double weight = 1.0 / widget.children.length;
-
     var children = <Widget>[];
-    widget.children.forEach((child) {
-      if (widget.children.first != child) {
+    for (int i = 0; i < widget.children.length; i++) {
+      double weight = weights[i] ?? 0.1;
+      var child = widget.children[i];
+      children.add(Positioned(
+        left: left,
+        width: viewsWidth * weight,
+        top: 0,
+        bottom: 0,
+        child: child,
+      ));
+      left += (viewsWidth * weight);
+      if (i != widget.children.length - 1) {
         children.add(Positioned(
           left: left,
           width: widget.gripSize,
@@ -264,68 +196,153 @@ class _SplitViewState extends State<SplitView> {
             onEnter: (event) {
               setState(() {
                 _gripColor = widget.gripColorActive;
+                _activeIndex = i;
               });
             },
             onExit: (_) {
-              if (_dragging == false)
+              if (_dragging == false) {
+                _activeIndex = -1;
                 setState(() => _gripColor = widget.gripColor);
+              }
             },
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
-              onHorizontalDragDown: (details) =>
-                  _gripColor = widget.gripColorActive,
+              onHorizontalDragDown: (details) {
+                _dragging = true;
+                _activeIndex = i;
+                _gripColor = widget.gripColorActive;
+                _startDragPos =
+                    _getLocalPosition(context, details.globalPosition);
+                _startWeight1 = _controller.weights[i]!;
+                _startWeight2 = _controller.weights[i + 1]!;
+                _startSize = viewsWidth * _startWeight1;
+              },
               onHorizontalDragEnd: (details) {
                 _dragging = false;
+                _activeIndex = -1;
                 setState(() => _gripColor = widget.gripColor);
               },
               onHorizontalDragUpdate: (detail) {
-                final RenderBox container =
-                    context.findRenderObject() as RenderBox;
-                final pos = container.globalToLocal(detail.globalPosition);
-                if (pos.dx > widget.positionLimit &&
-                    pos.dx < (container.size.width - widget.positionLimit)) {
-                  //TODO: 変更があったことを通知する必要がある
-                  // weight.value = pos.dx / container.size.width;
-                }
+                final pos = _getLocalPosition(context, detail.globalPosition);
+                var diff = pos.dx - _startDragPos.dx;
+                _changeWeights(diff, viewsWidth, i);
               },
-              child: Container(color: _gripColor),
+              child: Container(
+                  color: _activeIndex == i ? _gripColor : widget.gripColor),
             ),
           ),
         ));
         left += widget.gripSize;
       }
-      children.add(Positioned(
-        left: left,
-        width: viewsWidth * weight,
-        top: 0,
-        bottom: 0,
-        child: child,
-      ));
-      left += (viewsWidth * weight);
-    });
+    }
 
     return Stack(
       children: children,
     );
   }
+
+  void _changeWeights(double diff, double size, int index) {
+    var newWeight1 = (_startSize + diff) / size;
+    newWeight1 = _adjustWeight(newWeight1, _controller.limits[index]);
+    if (_controller.limits[index] != null) {
+      if (_controller.limits[index]!.min != null) {
+        newWeight1 = max(newWeight1, _controller.limits[index]!.min!);
+      }
+      if (_controller.limits[index]!.max != null) {
+        newWeight1 = min(newWeight1, _controller.limits[index]!.max!);
+      }
+    }
+    var newWeight2 = _startWeight1 + _startWeight2 - newWeight1;
+    if (_controller.limits[index + 1] != null) {
+      if (_controller.limits[index + 1]!.min != null) {
+        newWeight2 = max(newWeight2, _controller.limits[index + 1]!.min!);
+      }
+      if (_controller.limits[index + 1]!.max != null) {
+        newWeight2 = min(newWeight2, _controller.limits[index + 1]!.max!);
+      }
+      newWeight1 = _startWeight1 + _startWeight2 - newWeight2;
+    }
+    setState(() {
+      _controller._weights[index] = newWeight1;
+      _controller._weights[index + 1] = newWeight2;
+    });
+
+    if (widget.onWeightChanged != null) {
+      widget.onWeightChanged!(_controller.weights);
+    }
+  }
+
+  Offset _getLocalPosition(BuildContext context, Offset pos) {
+    var container = context.findRenderObject() as RenderBox;
+    return container.globalToLocal(pos);
+  }
+
+  double _adjustWeight(double weight, WeightLimit? limit) {
+    var w = min(weight, _startWeight1 + _startWeight2 - SplitView._weightLimit);
+    w = max(w, SplitView._weightLimit);
+    return w;
+  }
 }
 
+/// Controller for [Splitview]
 class SplitViewController {
+  /// Specifies the weight of each views.
   UnmodifiableListView<double?> get weights => UnmodifiableListView(_weights);
 
-  List<double?> _weights;
+  /// Specifies the limits of each views.
+  UnmodifiableListView<WeightLimit?> get limits =>
+      UnmodifiableListView(_limits);
 
-  SplitViewController._(this._weights);
+  List<double?> _weights;
+  List<WeightLimit?> _limits;
+
+  SplitViewController._(this._weights, this._limits);
 
   /// Creates a [SplitViewController]
   ///
   /// The [weights] specifies the ratio in the view. The sum of the [weights] cannot exceed 1.
-  factory SplitViewController({List<double?>? weights}) {
+  factory SplitViewController(
+      {List<double?>? weights, List<WeightLimit?>? limits}) {
     if (weights == null) {
       weights = List.empty(growable: true);
     }
-    return SplitViewController._(weights);
+    if (limits == null) {
+      limits = List.empty(growable: true);
+    }
+    return SplitViewController._(weights, limits);
   }
+
+  void _init(int length) {
+    if (_weights.length < length) {
+      _weights.length = length;
+    }
+    if (_limits.length < length) {
+      _limits.length = length;
+    }
+    int nullCnt = _weights.where((element) => element == null).length;
+    double weightSum = 0.0;
+    _weights.forEach((weight) {
+      weightSum += weight ?? 0;
+    });
+    double weightRemain = 1.0 - weightSum;
+    double calcWeight = weightRemain / nullCnt;
+    for (int i = 0; i < _weights.length; i++) {
+      if (_weights[i] == null) {
+        _weights[i] = calcWeight;
+      }
+    }
+  }
+}
+
+/// A WeightLimit class.
+class WeightLimit {
+  /// Minimal weight limit.
+  final double? min;
+
+  /// Maximum weight limit.
+  final double? max;
+
+  WeightLimit({this.min, this.max});
 }
 
 /// Arranges view order.

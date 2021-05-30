@@ -34,7 +34,6 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title!),
       ),
       body: SplitView(
-        initialWeight: 0.7,
         children: [
           SplitView(
             viewMode: SplitViewMode.Horizontal,
@@ -64,6 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
         viewMode: SplitViewMode.Vertical,
+        controller: SplitViewController(limits: [null, WeightLimit(max: 0.5)]),
         onWeightChanged: (w) => print("Vertical $w"),
       ),
     );

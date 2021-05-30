@@ -57,31 +57,35 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             SplitView(
               key: PageStorageKey(0),
-              initialWeight: 0.7,
-              view1: SplitView(
-                key: PageStorageKey(1),
-                viewMode: SplitViewMode.Horizontal,
-                view1: Container(
-                  child: Center(child: Text("View1")),
-                  color: Colors.red,
+              controller: SplitViewController(weights: [0.7]),
+              children: [
+                SplitView(
+                  key: PageStorageKey(1),
+                  viewMode: SplitViewMode.Horizontal,
+                  children: [
+                    Container(
+                      child: Center(child: Text("View1")),
+                      color: Colors.red,
+                    ),
+                    Container(
+                      child: Center(child: Text("View2")),
+                      color: Colors.blue,
+                    ),
+                  ],
+                  onWeightChanged: (w) => print("Horizon: $w"),
                 ),
-                view2: Container(
-                  child: Center(child: Text("View2")),
-                  color: Colors.blue,
+                Container(
+                  child: ListView.separated(
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          title: Text("Item ${items[index]}"),
+                        );
+                      },
+                      separatorBuilder: (context, index) => Divider(),
+                      itemCount: items.length),
+                  color: Colors.green,
                 ),
-                onWeightChanged: (w) => print("Horizon: $w"),
-              ),
-              view2: Container(
-                child: ListView.separated(
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text("Item ${items[index]}"),
-                      );
-                    },
-                    separatorBuilder: (context, index) => Divider(),
-                    itemCount: items.length),
-                color: Colors.green,
-              ),
+              ],
               viewMode: SplitViewMode.Vertical,
               onWeightChanged: (w) => print("Vertical $w"),
             ),

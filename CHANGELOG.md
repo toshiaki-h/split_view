@@ -1,3 +1,11 @@
+## 3.0.0
+
+* This version contains breaking changes.
+* Fields in view1 and view2 changed to children.
+* Added the SplitviewController class due to controlling views weights and limits.
+* Removed fields minWidthSidebar/maxWidthSidebar/minHeightSidebar/maxHeightSidebar and initialWeight. Instead, Added the WeightLimit class so that we can specify the weight.
+* The argument of the onWeightChanged handler now has multiple weights.
+
 ## 2.1.1+1
 
 * Formatted by dartfmt.
