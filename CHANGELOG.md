@@ -1,3 +1,8 @@
+## 3.1.0
+
+* Added indicator / activeIndicator fields. These fields can set grip indicator for inform the user that splitter bar is draggable.
+* Added SplitIndicator class. This class is a sample implementation of indicator.
+
 ## 3.0.0
 
 * This version contains breaking changes.

@@ -46,6 +46,11 @@ class _MyHomePageState extends State<MyHomePage> {
         children: [
           SplitView(
             viewMode: SplitViewMode.Horizontal,
+            indicator: SplitIndicator(viewMode: SplitViewMode.Horizontal),
+            activeIndicator: SplitIndicator(
+              viewMode: SplitViewMode.Horizontal,
+              isActive: true,
+            ),
             children: [
               Container(
                 child: Center(child: Text("View1")),
@@ -72,6 +77,11 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
         viewMode: SplitViewMode.Vertical,
+        indicator: SplitIndicator(viewMode: SplitViewMode.Vertical),
+        activeIndicator: SplitIndicator(
+          viewMode: SplitViewMode.Vertical,
+          isActive: true,
+        ),
         controller: SplitViewController(limits: [null, WeightLimit(max: 0.5)]),
         onWeightChanged: (w) => print("Vertical $w"),
       ),
