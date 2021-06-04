@@ -35,6 +35,12 @@ class SplitView extends StatefulWidget {
   /// Called when the user moves the grip.
   final ValueChanged<UnmodifiableListView<double?>>? onWeightChanged;
 
+  /// Grip indicator.
+  final Widget? indicator;
+
+  /// Grip indicator for active state.
+  final Widget? activeIndicator;
+
   /// Creates a [SplitView].
   SplitView({
     Key? key,
@@ -45,6 +51,8 @@ class SplitView extends StatefulWidget {
     this.gripColor = defaultGripColor,
     this.gripColorActive = defaultGripColorActive,
     this.onWeightChanged,
+    this.indicator,
+    this.activeIndicator,
   }) : super(key: key);
 
   @override
@@ -154,7 +162,14 @@ class _SplitViewState extends State<SplitView> {
                 _changeWeights(diff, viewsHeight, i);
               },
               child: Container(
-                  color: _activeIndex == i ? _gripColor : widget.gripColor),
+                color: _activeIndex == i ? _gripColor : widget.gripColor,
+                alignment: Alignment.center,
+                child: _activeIndex == i
+                    ? widget.activeIndicator != null
+                        ? widget.activeIndicator
+                        : widget.indicator
+                    : widget.indicator,
+              ),
             ),
           ),
         ));
@@ -228,7 +243,14 @@ class _SplitViewState extends State<SplitView> {
                 _changeWeights(diff, viewsWidth, i);
               },
               child: Container(
-                  color: _activeIndex == i ? _gripColor : widget.gripColor),
+                color: _activeIndex == i ? _gripColor : widget.gripColor,
+                alignment: Alignment.center,
+                child: _activeIndex == i
+                    ? widget.activeIndicator != null
+                        ? widget.activeIndicator
+                        : widget.indicator
+                    : widget.indicator,
+              ),
             ),
           ),
         ));
@@ -343,6 +365,80 @@ class WeightLimit {
   final double? max;
 
   WeightLimit({this.min, this.max});
+}
+
+/// A SplitIndicator class.
+class SplitIndicator extends StatelessWidget {
+  /// The [viewMode] specifies how to arrange views.
+  final SplitViewMode viewMode;
+
+  /// Specifies true when it is used in the active state.
+  final bool isActive;
+
+  /// Specified indicator color.
+  final Color color;
+
+  const SplitIndicator({
+    required this.viewMode,
+    this.isActive = false,
+    this.color = Colors.white,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.expand(
+      child: CustomPaint(
+        painter: _SplitIndicatorPainter(
+          viewMode: this.viewMode,
+          isActive: this.isActive,
+          color: this.color,
+        ),
+      ),
+    );
+  }
+}
+
+class _SplitIndicatorPainter extends CustomPainter {
+  final SplitViewMode viewMode;
+  final bool isActive;
+  final Color color;
+
+  static const double DEFAULT_STROKE_WIDTH_RATIO = 0.2;
+  static const double ACTIVE_STROKE_WIDTH_RATIO = 0.4;
+  static const double STROKE_LENGTH = 0.15;
+
+  _SplitIndicatorPainter({
+    required this.viewMode,
+    required this.isActive,
+    required this.color,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint = Paint()..color = this.color;
+    double x1, x2, y1, y2;
+    double strokeWidthRatio =
+        this.isActive ? ACTIVE_STROKE_WIDTH_RATIO : DEFAULT_STROKE_WIDTH_RATIO;
+    if (this.viewMode == SplitViewMode.Horizontal) {
+      x1 = x2 = size.width / 2;
+      y1 = size.height * (1 - STROKE_LENGTH) / 2;
+      y2 = y1 + size.height * STROKE_LENGTH;
+      paint.strokeWidth = size.width * strokeWidthRatio;
+      paint.strokeCap = StrokeCap.round;
+    } else {
+      x1 = size.width * (1 - STROKE_LENGTH) / 2;
+      x2 = x1 + size.width * STROKE_LENGTH;
+      y1 = y2 = size.height / 2;
+      paint.strokeWidth = size.height * strokeWidthRatio;
+      paint.strokeCap = StrokeCap.round;
+    }
+    canvas.drawLine(Offset(x1, y1), Offset(x2, y2), paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
+  }
 }
 
 /// Arranges view order.
