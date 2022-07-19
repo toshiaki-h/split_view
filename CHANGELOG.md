@@ -1,3 +1,8 @@
+## 3.2.0
+
+* Added weights setter and notify changes.(thanks to @jpnurmi)
+* Updates code for Flutter 3.0.x.
+
 ## 3.1.0
 
 * Added indicator / activeIndicator fields. These fields can set grip indicator for inform the user that splitter bar is draggable.
