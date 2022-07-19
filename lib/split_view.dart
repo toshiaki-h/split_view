@@ -3,6 +3,7 @@ library split_view;
 import 'dart:collection';
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -74,8 +75,38 @@ class _SplitViewState extends State<SplitView> {
   void initState() {
     super.initState();
 
-    _controller =
-        widget.controller != null ? widget.controller! : SplitViewController();
+    _controller = widget.controller ?? SplitViewController();
+    _controller.addListener(_handleWeightsChange);
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_handleWeightsChange);
+    if (widget.controller == null) {
+      _controller.dispose();
+    }
+
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(SplitView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.controller != oldWidget.controller) {
+      oldWidget.controller?.removeListener(_handleWeightsChange);
+      widget.controller?.addListener(_handleWeightsChange);
+
+      if (oldWidget.controller != null && widget.controller == null) {
+        _controller = SplitViewController(
+          weights: _controller.weights,
+          limits: _controller.limits,
+        );
+      } else if (widget.controller != null && oldWidget.controller == null) {
+        _controller.dispose();
+        _controller = widget.controller!;
+      }
+    }
   }
 
   @override
@@ -284,14 +315,16 @@ class _SplitViewState extends State<SplitView> {
       }
       newWeight1 = _startWeight1 + _startWeight2 - newWeight2;
     }
-    setState(() {
-      _controller._weights[index] = newWeight1;
-      _controller._weights[index + 1] = newWeight2;
-    });
 
-    if (widget.onWeightChanged != null) {
-      widget.onWeightChanged!(_controller.weights);
-    }
+    final weights = List.of(_controller._weights);
+    weights[index] = newWeight1;
+    weights[index + 1] = newWeight2;
+    _controller.weights = weights;
+  }
+
+  void _handleWeightsChange() {
+    setState(() {/* build() uses _controller.weights */});
+    widget.onWeightChanged?.call(_controller.weights);
   }
 
   Offset _getLocalPosition(BuildContext context, Offset pos) {
@@ -307,9 +340,14 @@ class _SplitViewState extends State<SplitView> {
 }
 
 /// Controller for [Splitview]
-class SplitViewController {
+class SplitViewController extends ChangeNotifier {
   /// Specifies the weight of each views.
   UnmodifiableListView<double?> get weights => UnmodifiableListView(_weights);
+  set weights(List<double?> weights) {
+    if (const ListEquality().equals(_weights, weights)) return;
+    _weights = weights;
+    notifyListeners();
+  }
 
   /// Specifies the limits of each views.
   UnmodifiableListView<WeightLimit?> get limits =>
