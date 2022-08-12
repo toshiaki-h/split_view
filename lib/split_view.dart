@@ -99,8 +99,10 @@ class _SplitViewState extends State<SplitView> {
           weights: _controller.weights,
           limits: _controller.limits,
         );
-      } else if (widget.controller != null && oldWidget.controller == null) {
-        _controller.dispose();
+      } else {
+        if (widget.controller != null && oldWidget.controller == null) {
+          _controller.dispose();
+        }
         _controller = widget.controller!;
       }
     }
