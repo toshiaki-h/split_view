@@ -1,3 +1,7 @@
+## 3.2.1
+
+* When rebuilding SplitView with an inline-constructed controller, the new controller was not assigned to _SplitViewState._controller and thus, did not get notified of moves after the first rebuild. (@jpnurmi)
+
 ## 3.2.0
 
 * Added weights setter and notify changes.(thanks to @jpnurmi)
