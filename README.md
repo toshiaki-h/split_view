@@ -5,6 +5,10 @@ A splitter view for flutter.
 ## Usage
 To use this plugin, add split_view as a [dependency in your pubspec.yaml file](https://flutter.io/platform-plugins/).
 
+## Sample
+
+
+
 ## Example
 ```dart
 import 'package:flutter/material.dart';
