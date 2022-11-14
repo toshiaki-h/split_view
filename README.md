@@ -7,7 +7,7 @@ To use this plugin, add split_view as a [dependency in your pubspec.yaml file](h
 
 ## Sample
 
-
+<img src="sample.gif" width="400"/>
 
 ## Example
 ```dart
