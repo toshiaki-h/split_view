@@ -39,6 +39,9 @@ class SplitView extends StatefulWidget {
   /// Grip indicator for active state.
   final Widget? activeIndicator;
 
+  /// Resizing area size, should be greater than or equal to [gripSize].
+  final double? resizingAreaSize;
+
   /// Creates a [SplitView].
   SplitView({
     Key? key,
@@ -51,7 +54,9 @@ class SplitView extends StatefulWidget {
     this.onWeightChanged,
     this.indicator,
     this.activeIndicator,
-  }) : super(key: key);
+    this.resizingAreaSize,
+  })  : assert(resizingAreaSize == null || resizingAreaSize >= gripSize),
+        super(key: key);
 
   @override
   State createState() => _SplitViewState();
@@ -66,6 +71,7 @@ class _SplitViewState extends State<SplitView> {
   late double _startWeight1;
   late double _startWeight2;
   late double _startSize;
+  late double _resizingAreaSize;
   late Offset _startDragPos;
 
   @override
@@ -74,6 +80,7 @@ class _SplitViewState extends State<SplitView> {
 
     _controller = widget.controller ?? SplitViewController();
     _controller.addListener(_handleWeightsChange);
+    _resizingAreaSize = widget.resizingAreaSize ?? widget.gripSize;
   }
 
   @override
@@ -221,7 +228,9 @@ class _SplitViewState extends State<SplitView> {
     var children = <Widget>[];
     for (int i = 0; i < widget.children.length; i++) {
       double weight = weights[i] ?? 0.1;
+
       var child = widget.children[i];
+
       children.add(Positioned(
         left: left,
         width: viewsWidth * weight,
@@ -229,11 +238,18 @@ class _SplitViewState extends State<SplitView> {
         bottom: 0,
         child: child,
       ));
+
+      left += (viewsWidth * weight) + widget.gripSize;
+    }
+
+    left = 0 - (_resizingAreaSize / 2) + (widget.gripSize / 2);
+    for (int i = 0; i < widget.children.length; i++) {
+      double weight = weights[i] ?? 0.1;
       left += (viewsWidth * weight);
+
       if (i != widget.children.length - 1) {
         children.add(Positioned(
           left: left,
-          width: widget.gripSize,
           top: 0,
           bottom: 0,
           child: MouseRegion(
@@ -272,20 +288,29 @@ class _SplitViewState extends State<SplitView> {
                 var diff = pos.dx - _startDragPos.dx;
                 _changeWeights(diff, viewsWidth, i);
               },
-              child: Container(
-                color: _activeIndex == i ? _gripColor : widget.gripColor,
+              child: Stack(
                 alignment: Alignment.center,
-                child: _activeIndex == i
-                    ? widget.activeIndicator != null
-                        ? widget.activeIndicator
-                        : widget.indicator
-                    : widget.indicator,
+                children: [
+                  Container(
+                    color: _activeIndex == i ? _gripColor : widget.gripColor,
+                    width: widget.gripSize,
+                    alignment: Alignment.center,
+                    child: _activeIndex == i
+                        ? widget.activeIndicator != null
+                            ? widget.activeIndicator
+                            : widget.indicator
+                        : widget.indicator,
+                  ),
+                  Container(
+                    width: _resizingAreaSize,
+                  ),
+                ],
               ),
             ),
           ),
         ));
-        left += widget.gripSize;
       }
+      left += widget.gripSize;
     }
 
     return Stack(
