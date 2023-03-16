@@ -36,6 +36,8 @@ class _MyHomePageState extends State<MyHomePage> {
       body: SplitView(
         children: [
           SplitView(
+            gripSize: 15,
+            resizingAreaSize: 80,
             viewMode: SplitViewMode.Horizontal,
             indicator: SplitIndicator(viewMode: SplitViewMode.Horizontal),
             activeIndicator: SplitIndicator(
