@@ -1,3 +1,9 @@
+## 3.2.2
+
+* Fixed SplitViewController.weights not being defensively copied on set. External mutation of the original list no longer corrupts the controller's internal state. (#28)
+* Fixed the same defensive copy issue in the SplitViewController constructor.
+* Added tests for defensive copy behavior.
+
 ## 3.2.1
 
 * When rebuilding SplitView with an inline-constructed controller, the new controller was not assigned to _SplitViewState._controller and thus, did not get notified of moves after the first rebuild. (@jpnurmi)
