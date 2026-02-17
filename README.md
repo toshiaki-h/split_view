@@ -90,6 +90,14 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 ```
 
+## Support
+
+If you find this package useful, please consider supporting the development:
+
+<a href="https://buymeacoffee.com/leaves" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="48"></a>
+
+[![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/toshiaki-h)
+
 ## ToDo
 - Add tests.
 - Aim to enhance documents.
