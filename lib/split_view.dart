@@ -11,7 +11,9 @@ class SplitView extends StatefulWidget {
   static const Color defaultGripColorActive =
       Color.fromARGB(0xff, 0x66, 0x66, 0x66);
   static const double defaultGripSize = 12.0;
-  static const double _weightLimit = 0.01;
+
+  /// Percentage a view remains visible even when its colosed
+  final double weightLimit;
 
   final List<Widget> children;
 
@@ -51,6 +53,7 @@ class SplitView extends StatefulWidget {
     this.onWeightChanged,
     this.indicator,
     this.activeIndicator,
+    this.weightLimit = 0.01,
   }) : super(key: key);
 
   @override
@@ -332,8 +335,8 @@ class _SplitViewState extends State<SplitView> {
   }
 
   double _adjustWeight(double weight, WeightLimit? limit) {
-    var w = min(weight, _startWeight1 + _startWeight2 - SplitView._weightLimit);
-    w = max(w, SplitView._weightLimit);
+    var w = min(weight, _startWeight1 + _startWeight2 - widget.weightLimit);
+    w = max(w, widget.weightLimit);
     return w;
   }
 }
