@@ -1,6 +1,9 @@
 ## 3.2.2
 
 * Make weightLimit configurable. WeightLimit is the portion of the closed child that remains visible.
+* Fixed SplitViewController.weights not being defensively copied on set. External mutation of the original list no longer corrupts the controller's internal state. (#28)
+* Fixed the same defensive copy issue in the SplitViewController constructor.
+* Added tests for defensive copy behavior.
 
 ## 3.2.1
 

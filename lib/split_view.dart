@@ -347,7 +347,7 @@ class SplitViewController extends ChangeNotifier {
   UnmodifiableListView<double?> get weights => UnmodifiableListView(_weights);
   set weights(List<double?> weights) {
     if (const ListEquality().equals(_weights, weights)) return;
-    _weights = weights;
+    _weights = <double?>[...weights];
     notifyListeners();
   }
 
@@ -365,13 +365,10 @@ class SplitViewController extends ChangeNotifier {
   /// The [weights] specifies the ratio in the view. The sum of the [weights] cannot exceed 1.
   factory SplitViewController(
       {List<double?>? weights, List<WeightLimit?>? limits}) {
-    if (weights == null) {
-      weights = List.empty(growable: true);
-    }
-    if (limits == null) {
-      limits = List.empty(growable: true);
-    }
-    return SplitViewController._(weights, limits);
+    return SplitViewController._(
+      weights != null ? <double?>[...weights] : List.empty(growable: true),
+      limits != null ? <WeightLimit?>[...limits] : List.empty(growable: true),
+    );
   }
 
   void _init(int length) {
