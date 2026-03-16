@@ -11,6 +11,7 @@ class SplitView extends StatefulWidget {
   static const Color defaultGripColorActive =
       Color.fromARGB(0xff, 0x66, 0x66, 0x66);
   static const double defaultGripSize = 12.0;
+  static const double defaultInvisibleGripPadding = 0;
   static const double _weightLimit = 0.01;
 
   final List<Widget> children;
@@ -39,8 +40,10 @@ class SplitView extends StatefulWidget {
   /// Grip indicator for active state.
   final Widget? activeIndicator;
 
+  final double invisibleGripPadding;
+
   /// Creates a [SplitView].
-  SplitView({
+  const SplitView({
     Key? key,
     required this.children,
     required this.viewMode,
@@ -51,6 +54,7 @@ class SplitView extends StatefulWidget {
     this.onWeightChanged,
     this.indicator,
     this.activeIndicator,
+    this.invisibleGripPadding = defaultInvisibleGripPadding,
   }) : super(key: key);
 
   @override
@@ -151,8 +155,10 @@ class _SplitViewState extends State<SplitView> {
       top += (viewsHeight * weight);
       if (i != widget.children.length - 1) {
         children.add(Positioned(
-          top: top,
-          height: widget.gripSize,
+          top: top - widget.invisibleGripPadding,
+          height: widget.invisibleGripPadding +
+              widget.gripSize +
+              widget.invisibleGripPadding,
           left: 0,
           right: 0,
           child: MouseRegion(
@@ -191,14 +197,17 @@ class _SplitViewState extends State<SplitView> {
                 var diff = pos.dy - _startDragPos.dy;
                 _changeWeights(diff, viewsHeight, i);
               },
-              child: Container(
-                color: _activeIndex == i ? _gripColor : widget.gripColor,
-                alignment: Alignment.center,
-                child: _activeIndex == i
-                    ? widget.activeIndicator != null
-                        ? widget.activeIndicator
-                        : widget.indicator
-                    : widget.indicator,
+              child: Center(
+                child: Container(
+                  height: widget.gripSize,
+                  color: _activeIndex == i ? _gripColor : widget.gripColor,
+                  alignment: Alignment.center,
+                  child: _activeIndex == i
+                      ? widget.activeIndicator != null
+                          ? widget.activeIndicator
+                          : widget.indicator
+                      : widget.indicator,
+                ),
               ),
             ),
           ),
@@ -232,8 +241,10 @@ class _SplitViewState extends State<SplitView> {
       left += (viewsWidth * weight);
       if (i != widget.children.length - 1) {
         children.add(Positioned(
-          left: left,
-          width: widget.gripSize,
+          left: left - widget.invisibleGripPadding,
+          width: widget.invisibleGripPadding +
+              widget.gripSize +
+              widget.invisibleGripPadding,
           top: 0,
           bottom: 0,
           child: MouseRegion(
@@ -272,14 +283,17 @@ class _SplitViewState extends State<SplitView> {
                 var diff = pos.dx - _startDragPos.dx;
                 _changeWeights(diff, viewsWidth, i);
               },
-              child: Container(
-                color: _activeIndex == i ? _gripColor : widget.gripColor,
-                alignment: Alignment.center,
-                child: _activeIndex == i
-                    ? widget.activeIndicator != null
-                        ? widget.activeIndicator
-                        : widget.indicator
-                    : widget.indicator,
+              child: Center(
+                child: Container(
+                  width: widget.gripSize,
+                  color: _activeIndex == i ? _gripColor : widget.gripColor,
+                  alignment: Alignment.center,
+                  child: _activeIndex == i
+                      ? widget.activeIndicator != null
+                          ? widget.activeIndicator
+                          : widget.indicator
+                      : widget.indicator,
+                ),
               ),
             ),
           ),
